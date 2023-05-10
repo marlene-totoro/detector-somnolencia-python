@@ -8,7 +8,7 @@ class AdministradorDeArchivos:
         self.__crear_archivo_si_no_existe()
 
     def __crear_archivo_si_no_existe ( self ):
-        archivo = open( self.__ARCHIVO, "x" )
+        archivo = open( self.__ARCHIVO, "a" )
         archivo.close()
 
     def insertar_calibracion ( self, distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo ):

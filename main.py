@@ -28,6 +28,7 @@ def main ():
     archivo = AdministradorDeArchivos()
     distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo = archivo.obtener_ultima_calibracion()
     cantidad_de_parapadeos = 0
+    timerEstablecido = False
     with mp_face_mesh.FaceMesh( **face_mesh_options ) as face_mesh:
       while cap.isOpened():
         success, image = cap.read()
@@ -67,13 +68,16 @@ def main ():
             cantidad_de_parapadeos += 1 if ojo_derecho_cerrado and ojo_izquierdo_cerrado else 0
             print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
             print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
-            estaSomnoliento = MiTimer( 3, verificar_somnoliencia, [ cantidad_de_parapadeos ] )
-            estaSomnoliento.start()
+            if not timerEstablecido:
+                estaSomnoliento = MiTimer( 3, verificar_somnoliencia, [ cantidad_de_parapadeos ] )
+                estaSomnoliento.start()
+                timerEstablecido = True
 
             if estaSomnoliento.join():
                 print( 'Se detecto somnolencia' )
             else:
                 cantidad_de_parapadeos = 0
+                # timerEstablecido = not timerEstablecido
             
         image.flags.writeable = True
         image = cv2.cvtColor( image, cv2.COLOR_RGB2BGR )
@@ -84,6 +88,7 @@ def main ():
             mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_IRISES, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_iris_connections_style() )
         else:
             # indicadores.no_se_detecto_rostro()
+            pass
 
         cv2.imshow( 'MediaPipe Face Mesh', cv2.flip( image, 1 ) )
 

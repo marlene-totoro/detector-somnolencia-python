@@ -2,3 +2,4 @@ numpy
 opencv-python
 mediapipe
 protobuf==3.20.*
+RPi.GPIO 
