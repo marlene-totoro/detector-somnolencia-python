@@ -37,32 +37,26 @@ class Indicadores:
         GPIO.output( self.__PIN_LED_VERDE, GPIO.LOW )
 
     def no_se_detecto_rostro ( self ):
-        # 3 pitidos cortos y 1 parpadeo del led rojo, seguido de 1 parpadeo del led amarillo y 1 parpadeo del led rojo
-        # Indica que no se detectando un rostro
+        # Se activa el led amarillo hasta que se detecte un rostro
+        self.__apagar_led( self.__PIN_LED_VERDE )
+        self.__apagar_led( self.__PIN_LED_ROJO )
+        self.__encender_led( self.__PIN_LED_AMARILLO )
 
-        GPIO.output( self.__PIN_BUZZER, GPIO.HIGH )
+
+    def se_esta_detectando_rostro ( self ):
+        # Apaga el led amarillo para indicar que se esta detectando un rostro
+        self.__apagar_led( self.__PIN_LED_AMARILLO )
+
+    def se_esta_detectando_somnoliencia ( self ):
+        # Se activa el led rojo y el buzzer hasta que se deje de detectar somnoliencia
+        self.__apagar_led( self.__PIN_LED_VERDE )
+        self.__apagar_led( self.__PIN_LED_AMARILLO )
         self.__encender_led( self.__PIN_LED_ROJO )
-        sleep( 0.2 )
-        GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
-        self.__apagar_led( self.__PIN_LED_ROJO )
-        sleep( 0.1 )
-
         GPIO.output( self.__PIN_BUZZER, GPIO.HIGH )
-        self.__encender_led( self.__PIN_LED_AMARILLO )
-        sleep( 0.2 )
-        GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
+    def no_se_detecto_somnoliencia ( self ):
+        # Se apaga el led rojo y el buzzer en caso de que se haya detectado somnoliencia anteriormente
         self.__apagar_led( self.__PIN_LED_ROJO )
-        sleep( 0.1 )
-
-        GPIO.output( self.__PIN_BUZZER, GPIO.HIGH )
-        self.__encender_led( self.__PIN_LED_AMARILLO )
-        sleep( 0.2 )
         GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
-        self.__apagar_led( self.__PIN_LED_ROJO )
-        sleep( 0.1 )
-
-
-
 
     def no_se_detecto_rostro_en_calibrado ( self ):
         # Un pitido y un parpadeo del led rojo por un segundo

@@ -19,7 +19,8 @@ def verificar_ojos_cerrados ( captura_de_rostro, distancia_calibrado_ojo_derecho
     ojo_izquierdo_cerrado = ( distancia_ojo_izquierdo < ( distancia_calibrado_ojo_izquierdo * 0.6 ) )
     return ojo_derecho_cerrado, ojo_izquierdo_cerrado
 
-def verificar_somnoliencia ( cantidad_de_parapadeos ):
-    return cantidad_de_parapadeos >= 100
-
-
+def verificar_somnoliencia ( cantidad_de_parapadeos, indicadores ):
+    if cantidad_de_parapadeos >= 20:
+        indicadores.se_esta_detectando_somnoliencia()
+    else:
+        indicadores.no_se_detecto_somnoliencia()
