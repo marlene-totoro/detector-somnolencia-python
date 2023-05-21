@@ -1,17 +1,23 @@
+from dotenv import load_dotenv
+from pathlib import Path
 import os
 import RPi.GPIO as GPIO
 from time import sleep
 
+dotenv_path = Path( './.env' )
+load_dotenv( dotenv_path=dotenv_path )
 
 class Indicadores:
     def __init__( self ):
-        self.__PIN_LED_ROJO = os.environ.get( 'PIN_LED_ROJO', 11 )
-        self.__PIN_LED_AMARILLO = os.environ.get( 'PIN_LED_AMARILLO', 12 )
-        self.__PIN_LED_VERDE = os.environ.get( 'PIN_LED_VERDE', 13 )
+        self.__PIN_LED_ROJO = int( os.getenv( 'PIN_LED_ROJO', 11 ))
+        self.__PIN_LED_AMARILLO = int( os.getenv( 'PIN_LED_AMARILLO', 12 ) )
+        self.__PIN_LED_VERDE = int( os.getenv( 'PIN_LED_VERDE', 13 ) )
 
-        self.__PIN_BUZZER = os.environ.get( 'PIN_BUZZER', 15 )
-        self.__PIN_BOTON_CALIBRAR = os.environ.get( 'PIN_BOTON_CALIBRAR', 16 )
+        self.__PIN_BUZZER = int( os.getenv( 'PIN_BUZZER', 15 ) )
+        self.__PIN_BOTON_CALIBRAR = int( os.getenv( 'PIN_BOTON_CALIBRAR', 16 ) )
+        print( self.__PIN_LED_ROJO )
 
+        GPIO.setwarnings( False )
         GPIO.setmode( GPIO.BOARD )
         self.__establecer_pines()
 
@@ -20,12 +26,24 @@ class Indicadores:
         GPIO.setup( self.__PIN_LED_AMARILLO, GPIO.OUT )
         GPIO.setup( self.__PIN_LED_VERDE,    GPIO.OUT )
         GPIO.setup( self.__PIN_BUZZER,       GPIO.OUT )
-        GPIO.setup( self.__PIN_BOTON_CALIBRAR, GPIO.IN, pull_up_down=GPIO.PUD_UP )
+
+        GPIO.output( self.__PIN_LED_ROJO, GPIO.LOW )
+        GPIO.output( self.__PIN_LED_AMARILLO, GPIO.LOW )
+        GPIO.output( self.__PIN_LED_VERDE, GPIO.LOW )
+        GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
+
+        GPIO.setup( self.__PIN_BOTON_CALIBRAR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN )
 
     def __encender_led ( self, pin ):
         GPIO.output( pin, GPIO.HIGH )
     def __apagar_led ( self, pin ):
         GPIO.output( pin, GPIO.LOW )
+
+    def apagar_todo ( self ):
+        self.__apagar_led( self.__PIN_LED_VERDE )
+        self.__apagar_led( self.__PIN_LED_AMARILLO )
+        self.__apagar_led( self.__PIN_LED_ROJO )
+        self.__apagar_led( self.__PIN_BUZZER )
 
     def calibrado_correctamente ( self ):
         # Un pitido y un parpadeo del led verde por un segundo
@@ -53,6 +71,7 @@ class Indicadores:
         self.__apagar_led( self.__PIN_LED_AMARILLO )
         self.__encender_led( self.__PIN_LED_ROJO )
         GPIO.output( self.__PIN_BUZZER, GPIO.HIGH )
+
     def no_se_detecto_somnoliencia ( self ):
         # Se apaga el led rojo y el buzzer en caso de que se haya detectado somnoliencia anteriormente
         self.__apagar_led( self.__PIN_LED_ROJO )
@@ -103,6 +122,6 @@ class Indicadores:
 
 
     def verificar_boton_calibrar ( self ):
-        return GPIO.input( self.__PIN_BOTON_CALIBRAR ) == GPIO.LOW
+        return GPIO.input( self.__PIN_BOTON_CALIBRAR ) == GPIO.HIGH
 
 

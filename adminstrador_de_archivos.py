@@ -1,9 +1,13 @@
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+dotenv_path = Path( './.env' )
+load_dotenv( dotenv_path=dotenv_path )
 
 class AdministradorDeArchivos:
     def __init__( self ):
-        self.__NOMBRE_ARCHIVO_CALIBRACION = os.environ.get( 'NOMBRE_ARCHIVO_CALIBRACION', 'calibracion.txt' )
-        self.__RUTA_ARCHIVO_CALIBRACION = os.environ.get( 'RUTA_ARCHIVO_CALIBRACION', './' )
+        self.__NOMBRE_ARCHIVO_CALIBRACION = os.getenv( 'NOMBRE_ARCHIVO_CALIBRACION', 'nocali' )
+        self.__RUTA_ARCHIVO_CALIBRACION = os.getenv( 'RUTA_ARCHIVO_CALIBRACION', './' )
         self.__ARCHIVO = f"{ self.__RUTA_ARCHIVO_CALIBRACION }/{ self.__NOMBRE_ARCHIVO_CALIBRACION }.txt"
         self.__crear_archivo_si_no_existe()
 

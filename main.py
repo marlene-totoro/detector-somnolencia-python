@@ -28,7 +28,10 @@ def main ():
     archivo = AdministradorDeArchivos()
     distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo = archivo.obtener_ultima_calibracion()
     cantidad_de_parapadeos = 0
-    timerEstablecido = False
+    detector_de_somnolencia = {
+        'timer': False,
+        'cantidad_de_parpadeos': 0
+    }
     with mp_face_mesh.FaceMesh( **face_mesh_options ) as face_mesh:
       while cap.isOpened():
         success, image = cap.read()
@@ -43,7 +46,9 @@ def main ():
         if indicadores.verificar_boton_calibrar(): # Pregunta si se presiono el boton de calibrar
             # Enciende los rojo, amarillo y verde por 1 segundo cada uno, y el amarillo parpadea 3 veces
             # para indicar que se esta calibrando
+            print( 'se realizara la calibracion' )
             indicadores.contador_con_leds( 5 ) 
+            
 
             # Verifica que se haya detectado un rostro
             if results.multi_face_landmarks:
@@ -53,11 +58,12 @@ def main ():
                 # Asignacion de las distancias calibradas
                 distancia_calibrado_ojo_derecho = distancia_ojo_derecho
                 distancia_calibrado_ojo_izquierdo = distancia_ojo_izquierdo
-                print( 'Distancia ojo derecho calibrado: ', distancia_calibrado_ojo_derecho )
-                print( 'Distancia ojo izquierdo calibrado: ', distancia_calibrado_ojo_izquierdo )
+                #print( 'Distancia ojo derecho calibrado: ', distancia_calibrado_ojo_derecho )
+                #print( 'Distancia ojo izquierdo calibrado: ', distancia_calibrado_ojo_izquierdo )
 
                 # Grabar calibracion en archivo
                 archivo.insertar_calibracion( distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo )
+                indicadores.calibrado_correctamente()
             else:
                 print( 'No se detecto rostro en la calibracion' )
                 indicadores.no_se_detecto_rostro_en_calibrado()
@@ -67,17 +73,14 @@ def main ():
             indicadores.se_esta_detectando_rostro()
             captura_de_rostro = results.multi_face_landmarks[ 0 ]
             ojo_derecho_cerrado, ojo_izquierdo_cerrado = verificar_ojos_cerrados( captura_de_rostro, distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo )
-            cantidad_de_parapadeos += 1 if ojo_derecho_cerrado and ojo_izquierdo_cerrado else 0
-            print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
-            print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
-            if not timerEstablecido:
-                estaSomnoliento = Timer( 3, verificar_somnoliencia, [ cantidad_de_parapadeos, indicadores ] )
+            detector_de_somnolencia[ 'cantidad_de_parpadeos' ] += 1 if ojo_derecho_cerrado and ojo_izquierdo_cerrado else 0
+            # print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
+            # print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
+            if not detector_de_somnolencia[ 'timer' ]:
+                detector_de_somnolencia[ 'timer' ] = True
+                estaSomnoliento = Timer( 3, verificar_somnoliencia, [ detector_de_somnolencia, indicadores ] )
                 estaSomnoliento.start()
-                timerEstablecido = True
 
-            else:
-                cantidad_de_parapadeos = 0
-                timerEstablecido = not timerEstablecido
         else:
             indicadores.no_se_detecto_rostro()
             
@@ -95,6 +98,7 @@ def main ():
         cv2.imshow( 'MediaPipe Face Mesh', cv2.flip( image, 1 ) )
 
         if cv2.waitKey( 5 ) & 0xFF == 27:
+          indicadores.apagar_todo()
           break
     cap.release()   
 
