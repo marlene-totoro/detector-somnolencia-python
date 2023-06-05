@@ -27,10 +27,11 @@ def main ():
     # Clase que se encarga de el manejo de los archivos
     archivo = AdministradorDeArchivos()
     distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo = archivo.obtener_ultima_calibracion()
-    cantidad_de_parapadeos = 0
     detector_de_somnolencia = {
         'timer': False,
-        'cantidad_de_parpadeos': 0
+        'cantidad_de_parpadeos': 0,
+        'veces_que_se_ha_dormido': 0,
+        'timer_veces_que_se_ha_dormido': False,
     }
     with mp_face_mesh.FaceMesh( **face_mesh_options ) as face_mesh:
       while cap.isOpened():

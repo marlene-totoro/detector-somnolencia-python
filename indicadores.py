@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 import RPi.GPIO as GPIO
 from time import sleep
+import math
 
 dotenv_path = Path( './.env' )
 load_dotenv( dotenv_path=dotenv_path )
@@ -15,7 +16,7 @@ class Indicadores:
 
         self.__PIN_BUZZER = int( os.getenv( 'PIN_BUZZER', 15 ) )
         self.__PIN_BOTON_CALIBRAR = int( os.getenv( 'PIN_BOTON_CALIBRAR', 16 ) )
-        print( self.__PIN_LED_ROJO )
+        self.__PIN_RELE = int( os.getenv( 'PIN_RELE', 18 ) )
 
         GPIO.setwarnings( False )
         GPIO.setmode( GPIO.BOARD )
@@ -26,11 +27,13 @@ class Indicadores:
         GPIO.setup( self.__PIN_LED_AMARILLO, GPIO.OUT )
         GPIO.setup( self.__PIN_LED_VERDE,    GPIO.OUT )
         GPIO.setup( self.__PIN_BUZZER,       GPIO.OUT )
+        GPIO.setup( self.__PIN_RELE,         GPIO.OUT )
 
         GPIO.output( self.__PIN_LED_ROJO, GPIO.LOW )
         GPIO.output( self.__PIN_LED_AMARILLO, GPIO.LOW )
         GPIO.output( self.__PIN_LED_VERDE, GPIO.LOW )
         GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
+        GPIO.output( self.__PIN_RELE, GPIO.LOW )
 
         GPIO.setup( self.__PIN_BOTON_CALIBRAR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN )
 
@@ -77,6 +80,7 @@ class Indicadores:
         self.__apagar_led( self.__PIN_LED_ROJO )
         GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
 
+
     def no_se_detecto_rostro_en_calibrado ( self ):
         # Un pitido y un parpadeo del led rojo por un segundo
         # Indica que no se detecto un rostro en el calibrado
@@ -85,6 +89,37 @@ class Indicadores:
         sleep( 1 )
         GPIO.output( self.__PIN_BUZZER, GPIO.LOW )
         GPIO.output( self.__PIN_LED_ROJO, GPIO.LOW )
+
+    def medir_velocidad ( self ):
+        # Se mide la velocidad del vehiculo
+        # Se retorna un valor entre 0 y 1
+        return 0.2
+
+    def se_realiza_frenado_de_emergencia ( self ):
+        # Se activa el rele para el frenado gradual
+        # se mide velocidad
+        velocidad = self.medir_velocidad () # normalizado es decir con valores entre 0 y 1
+
+        # Si la velocidad es alta el rango sera 20, es decir que se activara el rele gradualmente
+        # primero 1, 2, 3, 4 ... 25 segundos, es decir que se activara el rele por 325 segundos
+        # mas los 20 segundos de desactivado, esto nos da 345 
+        # Estos 345 segundos equivalen a 5 minutos y 45 segundos de intervencion del vehiculo
+
+        # Si la velocidad es baja el rango sera menor, es decir que
+        # habra un menor tiempo de intervencion del vehiculo, dado que
+        # En base a una velocidad mas baja se considera que el grado de peligro es menor
+
+        for i in range( math.ceil( velocidad * 25 ) ): # ceil hace que se redondee hacia arriba
+            self.encender_rele()
+            sleep( i ) # Se activa el rele por i / 2 segundos -> esto para que se active primero poco tiempo y luego mas tiempo
+            self.apagar_rele()
+            sleep( 1 )
+
+    def encender_rele ( self ):
+        GPIO.output( self.__PIN_RELE, GPIO.HIGH )
+
+    def apagar_rele ( self ):
+        GPIO.output( self.__PIN_RELE, GPIO.LOW )
 
     def probar_buzzer ( self ):
         GPIO.output( self.__PIN_BUZZER, GPIO.HIGH )

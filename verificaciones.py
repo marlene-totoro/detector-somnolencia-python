@@ -1,5 +1,10 @@
+from threading import Timer
+
 FACEMESH_PUNTOS_OJO_DERECHO = ( 159, 145 ) # 386 es el indice del punto de la parte superior del ojo derecho, y 374 es el indice del punto de la parte inferior del ojo derecho
 FACEMESH_PUNTOS_OJO_IZQUIERDO = ( 386, 374 ) # 159 es el indice del punto de la parte superior del ojo izquierdo, y 145 es el indice del punto de la parte inferior del ojo izquierdo
+
+def resetear_veces_que_se_ha_dormido ( detector_de_somnolencia ):
+    detector_de_somnolencia[ 'veces_que_se_ha_dormido' ] = 0
 
 def obtener_distancias_entre_parpados( captura_de_rostro ):
     # Obtencion de las coordenadas de los puntos de interes
@@ -24,6 +29,14 @@ def verificar_somnoliencia ( detector_de_somnolencia, indicadores ):
     if detector_de_somnolencia[ 'cantidad_de_parpadeos' ] >= 22:
         print( 'Se detecto al conductor durmiendo con: ', detector_de_somnolencia[ 'cantidad_de_parpadeos' ] )
         indicadores.se_esta_detectando_somnoliencia()
+        if not detector_de_somnolencia[ 'timer_veces_que_se_ha_dormido' ]:
+            detector_de_somnolencia[ 'timer_veces_que_se_ha_dormido' ] = True
+            estaSomnoliento = Timer( 600, resetear_veces_que_se_ha_dormido, [ detector_de_somnolencia ] )
+            estaSomnoliento.start()
+        detector_de_somnolencia[ 'veces_que_se_ha_dormido' ] += 1
+        if detector_de_somnolencia[ 'veces_que_se_ha_dormido' ] >= 3:
+            print( 'Se detecto al conductor durmiendo' )
+            indicadores.se_realiza_frenado_de_emergencia()
     else:
         # print( 'No se detecto al conductor durmiendo' )
         indicadores.no_se_detecto_somnoliencia()
