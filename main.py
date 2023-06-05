@@ -74,13 +74,13 @@ def main ():
             captura_de_rostro = results.multi_face_landmarks[ 0 ]
             ojo_derecho_cerrado, ojo_izquierdo_cerrado = verificar_ojos_cerrados( captura_de_rostro, distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo )
             detector_de_somnolencia[ 'cantidad_de_parpadeos' ] += 1 if ojo_derecho_cerrado and ojo_izquierdo_cerrado else 0
-            # print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
-            # print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
+            print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
+            print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
+            # print( 'Cantidad de parpadeos: ', detector_de_somnolencia[ 'cantidad_de_parpadeos' ] )
             if not detector_de_somnolencia[ 'timer' ]:
                 detector_de_somnolencia[ 'timer' ] = True
                 estaSomnoliento = Timer( 3, verificar_somnoliencia, [ detector_de_somnolencia, indicadores ] )
                 estaSomnoliento.start()
-
         else:
             indicadores.no_se_detecto_rostro()
             
@@ -89,9 +89,10 @@ def main ():
         if results.multi_face_landmarks:
           indicadores.se_esta_detectando_rostro()
           for face_landmarks in results.multi_face_landmarks:
-            mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_TESSELATION, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_tesselation_style() )
-            mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_CONTOURS, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_contours_style() )
-            mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_IRISES, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_iris_connections_style() )
+            # mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_TESSELATION, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_tesselation_style() )
+            mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_LEFT_EYE, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style() )
+            mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_RIGHT_EYE, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style() )
+            # mp_drawing.draw_landmarks( image=image, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_IRISES, landmark_drawing_spec=None, connection_drawing_spec=mp_drawing_styles .get_default_face_mesh_iris_connections_style() )
         else:
             indicadores.no_se_detecto_rostro()
 

@@ -4,13 +4,11 @@ from time import sleep
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
-buzzer=7
-GPIO.setup(buzzer,GPIO.OUT)
+buzzer=40
+GPIO.setup( buzzer, GPIO.IN, pull_up_down=GPIO.PUD_DOWN )
 
 while True:
-    GPIO.output(buzzer,GPIO.HIGH)
-    print ("Beep")
-    sleep(0.5) # Delay in seconds
-    GPIO.output(buzzer,GPIO.LOW)
-    print ("No Beep")
-    sleep(0.5)
+    if GPIO.input( buzzer ) == GPIO.HIGH:
+        print( 'se presiono el boton' )
+    else:
+        print( 'no')

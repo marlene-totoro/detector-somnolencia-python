@@ -15,17 +15,17 @@ def obtener_distancias_entre_parpados( captura_de_rostro ):
 
 def verificar_ojos_cerrados ( captura_de_rostro, distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo ):
     distancia_ojo_derecho, distancia_ojo_izquierdo = obtener_distancias_entre_parpados( captura_de_rostro )
-    ojo_derecho_cerrado   = ( distancia_ojo_derecho < ( distancia_calibrado_ojo_derecho * 0.6 ) )
-    ojo_izquierdo_cerrado = ( distancia_ojo_izquierdo < ( distancia_calibrado_ojo_izquierdo * 0.6 ) )
+    ojo_derecho_cerrado   = ( distancia_ojo_derecho < ( distancia_calibrado_ojo_derecho + ( distancia_calibrado_ojo_derecho * 0.2 ) ) )
+    ojo_izquierdo_cerrado = ( distancia_ojo_izquierdo < ( distancia_calibrado_ojo_izquierdo +  ( distancia_calibrado_ojo_izquierdo * 0.2 ) ) )
     return ojo_derecho_cerrado, ojo_izquierdo_cerrado
 
 def verificar_somnoliencia ( detector_de_somnolencia, indicadores ):
-    print( 'cantidad de parpadeos', detector_de_somnolencia )
-    if detector_de_somnolencia[ 'cantidad_de_parpadeos' ] >= 9:
-        print( 'Se detecto al conductor durmiendo' )
+    # print( 'Cantidad de parpadeos: ', detector_de_somnolencia[ 'cantidad_de_parpadeos' ] )
+    if detector_de_somnolencia[ 'cantidad_de_parpadeos' ] >= 22:
+        print( 'Se detecto al conductor durmiendo con: ', detector_de_somnolencia[ 'cantidad_de_parpadeos' ] )
         indicadores.se_esta_detectando_somnoliencia()
     else:
-        print( 'No se detecto al conductor durmiendo' )
+        # print( 'No se detecto al conductor durmiendo' )
         indicadores.no_se_detecto_somnoliencia()
     detector_de_somnolencia[ 'cantidad_de_parpadeos' ] = 0
     detector_de_somnolencia[ 'timer' ] = False
