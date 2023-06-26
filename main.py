@@ -1,3 +1,4 @@
+import sys
 from threading import Timer
 import cv2
 import mediapipe as mp
@@ -75,12 +76,12 @@ def main ():
             captura_de_rostro = results.multi_face_landmarks[ 0 ]
             ojo_derecho_cerrado, ojo_izquierdo_cerrado = verificar_ojos_cerrados( captura_de_rostro, distancia_calibrado_ojo_derecho, distancia_calibrado_ojo_izquierdo )
             detector_de_somnolencia[ 'cantidad_de_parpadeos' ] += 1 if ojo_derecho_cerrado and ojo_izquierdo_cerrado else 0
-            print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
-            print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
+            # print( 'Ojo derecho cerrado: ', 'Si' if ojo_derecho_cerrado else 'No' )
+            # print( 'Ojo izquierdo cerrado: ', 'Si' if ojo_izquierdo_cerrado else 'No' )
             # print( 'Cantidad de parpadeos: ', detector_de_somnolencia[ 'cantidad_de_parpadeos' ] )
             if not detector_de_somnolencia[ 'timer' ]:
                 detector_de_somnolencia[ 'timer' ] = True
-                estaSomnoliento = Timer( 3, verificar_somnoliencia, [ detector_de_somnolencia, indicadores ] )
+                estaSomnoliento = Timer( 5, verificar_somnoliencia, [ detector_de_somnolencia, indicadores ] )
                 estaSomnoliento.start()
         else:
             indicadores.no_se_detecto_rostro()
@@ -101,8 +102,13 @@ def main ():
 
         if cv2.waitKey( 5 ) & 0xFF == 27:
           indicadores.apagar_todo()
+          sys.exit()
           break
     cap.release()   
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        indicadores.apagar_todo()
+        sys.exit()

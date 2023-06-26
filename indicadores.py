@@ -100,7 +100,7 @@ class Indicadores:
         # se mide velocidad
         velocidad = self.medir_velocidad () # normalizado es decir con valores entre 0 y 1
 
-        # Si la velocidad es alta el rango sera 20, es decir que se activara el rele gradualmente
+        # Si la velocidad es alta el rango sera 25, es decir que se activara el rele gradualmente
         # primero 1, 2, 3, 4 ... 25 segundos, es decir que se activara el rele por 325 segundos
         # mas los 20 segundos de desactivado, esto nos da 345 
         # Estos 345 segundos equivalen a 5 minutos y 45 segundos de intervencion del vehiculo
